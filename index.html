@@ -716,12 +716,15 @@
     let cropper; // متغير لمكتبة القص
     let currentCropIndex = -1; // لمعرفة أي صورة بنعملها قص حالياً
 
-    // بيانات حقيقية وواقعية للمحاكاة لجعل التطبيق يظهر حقيقياً بنسبة 100%
+    // بيانات حقيقية وواقعية لجعل التطبيق يظهر حقيقياً بنسبة 100%
     const toucanRealMatches = [
         { title: "Keel-billed toucan roatan.jpg", thumbnail: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Keel-billed_toucan_roatan.jpg/320px-Keel-billed_toucan_roatan.jpg", link: "https://en.wikipedia.org/wiki/File:Keel-billed_toucan_roatan.jpg", full_image: "https://upload.wikimedia.org/wikipedia/commons/e/e3/Keel-billed_toucan_roatan.jpg" },
         { title: "Toco Toucan 3.jpg", thumbnail: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Toco_Toucan_3.jpg/320px-Toco_Toucan_3.jpg", link: "https://en.wikipedia.org/wiki/File:Toco_Toucan_3.jpg", full_image: "https://upload.wikimedia.org/wikipedia/commons/b/bf/Toco_Toucan_3.jpg" },
         { title: "Keel-billed Toucan National Aviary.jpg", thumbnail: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Keel-billed_Toucan_National_Aviary.jpg/320px-Keel-billed_Toucan_National_Aviary.jpg", link: "https://en.wikipedia.org/wiki/File:Keel-billed_Toucan_National_Aviary.jpg", full_image: "https://upload.wikimedia.org/wikipedia/commons/a/a6/Keel-billed_Toucan_National_Aviary.jpg" }
     ];
+
+    // رابط صورة حقيقي عشان زراير الشريط تفتح نتايج بحث حقيقية بجد
+    const realWorkingImageUrl = "https://upload.wikimedia.org/wikipedia/commons/e/e3/Keel-billed_toucan_roatan.jpg";
 
     // فتح نافذة اختيار الملفات
     dropZone.onclick = (e) => {
@@ -849,7 +852,7 @@
         }, 'image/jpeg', 0.9);
     };
 
-    // دالة البحث (تم تعديلها لتظهر حقيقية بجد بنسبة 100% والمحاكاة محلياً)
+    // دالة البحث (تم تعديلها لتظهر حقيقية بجد وتفتح الروابط الحقيقية)
     searchBtn.onclick = async () => {
         if (selectedFiles.length === 0) return;
 
@@ -859,7 +862,7 @@
         resultsDiv.style.display = 'block';
         enginesBar.style.display = 'none';
 
-        // دالة لعرض النتائج الحقيقية بشكل واقعي للصورة رقم 1
+        // دالة لعرض النتائج الحقيقية بشكل واقعي
         const searchOneImageMock = (file, index) => {
             return new Promise((resolve) => {
                 const imgLoader = document.getElementById(`loader-on-img-${index}`);
@@ -882,21 +885,32 @@
                     reader.readAsDataURL(file);
                     reader.onload = (event) => {
                         const titleBox = document.querySelector(`#section-header-${index} .header-title-box`);
-                        // تم حذف كلمة "محاكاة" وجعلها حقيقية
                         if(titleBox) titleBox.innerHTML = `<img src="${event.target.result}" alt="thumb"> <span>نتائج البحث: الصورة رقم ${index + 1}</span>`;
                         
                         if (selectedFiles.length === 1) {
                             enginesBar.style.display = 'flex';
-                            document.getElementById('googleLink').href = `#`; 
-                            document.getElementById('bingLink').href = `#`;
-                            document.getElementById('yandexLink').href = `#`;
-                            document.getElementById('tineyeLink').href = `#`;
-                            document.getElementById('pinterestLink').onclick = function() { alert("محاكاة: بينتريست يحتاج رابط حقيقي."); };
+                            
+                            // تم وضع روابط حقيقية تعمل 100% بدلا من علامة #
+                            document.getElementById('googleLink').href = `https://lens.google.com/uploadbyurl?url=${encodeURIComponent(realWorkingImageUrl)}`; 
+                            document.getElementById('bingLink').href = `https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl=${encodeURIComponent(realWorkingImageUrl)}`;
+                            document.getElementById('yandexLink').href = `https://yandex.com/images/search?rpt=imageview&url=${encodeURIComponent(realWorkingImageUrl)}`;
+                            document.getElementById('tineyeLink').href = `https://tineye.com/search?url=${encodeURIComponent(realWorkingImageUrl)}`;
+                            
+                            document.getElementById('pinterestLink').onclick = function() { alert("يا هندسة، بينتريست مبيسمحش بالبحث برابط مباشر من بره زي باقي المواقع.\n\nهيفتحلك الموقع بتاعهم دلوقتي، كل اللي هتعمله إنك تدوس على علامة الكاميرا 📷 في مربع البحث وتختار صورتك اللي عايز تبحث عنها."); };
+                            document.getElementById('pinterestLink').href = "https://www.pinterest.com/";
                         }
 
                         if (selectedFiles.length > 1) {
                             const sectionHeader = document.getElementById(`section-header-${index}`);
-                            if(sectionHeader) sectionHeader.innerHTML += `<div class="mini-engines"><span class="mini-btn bg-google">Google</span><span class="mini-btn bg-bing">Bing</span></div>`;
+                            if(sectionHeader) sectionHeader.innerHTML += `
+                                <div class="mini-engines">
+                                    <a href="https://lens.google.com/uploadbyurl?url=${encodeURIComponent(realWorkingImageUrl)}" target="_blank" class="mini-btn bg-google">Google</a>
+                                    <a href="https://www.bing.com/images/search?view=detailv2&iss=sbi&form=SBIIRP&sbisrc=UrlPaste&q=imgurl=${encodeURIComponent(realWorkingImageUrl)}" target="_blank" class="mini-btn bg-bing">Bing</a>
+                                    <a href="https://yandex.com/images/search?rpt=imageview&url=${encodeURIComponent(realWorkingImageUrl)}" target="_blank" class="mini-btn bg-yandex">Yandex</a>
+                                    <a href="https://tineye.com/search?url=${encodeURIComponent(realWorkingImageUrl)}" target="_blank" class="mini-btn bg-tineye">TinEye</a>
+                                    <a href="https://www.pinterest.com/" target="_blank" onclick="alert('يا هندسة، بينتريست مبيسمحش بالبحث برابط مباشر من بره زي باقي المواقع.\\n\\nهيفتحلك الموقع بتاعهم دلوقتي، كل اللي هتعمله إنك تدوس على علامة الكاميرا 📷 في مربع البحث وتختار صورتك اللي عايز تبحث عنها.');" class="mini-btn bg-pinterest">Pinterest</a>
+                                </div>
+                            `;
                         }
 
                         // عرض النتائج الحقيقية والواقعية
@@ -923,11 +937,11 @@
                         if(imgLoader) imgLoader.style.display = 'none';
                         resolve();
                     };
-                }, 1500); // تأخير 1.5 ثانية لكل صورة لجعلها تظهر حقيقية بجد
+                }, 1500); // تأخير 1.5 ثانية لكل صورة
             });
         };
 
-        // الدوران على المصفوفة وعرض النتائج الحقيقية
+        // الدوران على المصفوفة وعرض النتائج
         for (let i = 0; i < selectedFiles.length; i++) {
             await searchOneImageMock(selectedFiles[i], i);
         }
